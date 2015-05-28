@@ -7,7 +7,7 @@ timestart="$1"
 tstart=0
 tend=120
 tskip=6
-threads=11
+threads=21
 tint=21600
 
 figlist='sfc_prcp sfc_wind 850_temp 500_vort 300_wspd olr_ir max_ref'

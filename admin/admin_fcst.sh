@@ -22,7 +22,11 @@ fcst_download () {
 #  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
 
   mkdir -p $outdir/${TIMEf}/fcst
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean $outdir/${TIMEf}/fcst
+  if ((CYCLE_TIMEf >= $(date -ud "$LCYCLE second ${TIME}" +'%Y%m%d%H%M%S'))); then
+    rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean $outdir/${TIMEf}/fcst
+  else
+    rsync -av ${r_url}:${r_outdir}/${TIMEf}/fcst/mean $outdir/${TIMEf}/fcst
+  fi
 
   ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}"
 
@@ -55,6 +59,9 @@ TIME="$(date -ud "$LCYCLE second ${PREVIOUS_TIME}" +'%Y-%m-%d %H:%M:%S')"
 TIMEf="$(date -ud "${TIME}" +'%Y%m%d%H%M%S')"
 TIMEf2="$(date -ud "${TIME}" +'%Y%m%d%H')"
 TIMEh="$(date -ud "${TIME}" +'%k')"
+
+CYCLE_TIME="$(cat "$wkdir/admin_cycle.time")"
+CYCLE_TIMEf="$(date -ud "${FCST_TIME}" +'%Y%m%d%H%M%S')"
 
 #-------------------------------------------------------------------------------
 
