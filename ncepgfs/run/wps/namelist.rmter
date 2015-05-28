@@ -1,0 +1,16 @@
+&input_output
+ max_dom          = 1
+ geo_em_file      = 'geo_em.d??.nc'
+ file_format      = 0
+/
+
+&rm_definition
+ max_rect         = 1
+ lon_s            =   0.0, 119.0,
+ lon_e            = 360.0, 122.0
+ lat_s            = -90.0, 21.0,
+ lat_e            =  90.0, 24.0,
+ hgt_factor       = 0.
+ sea_surface      = .false.
+ sst              = 300.
+/
