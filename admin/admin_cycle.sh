@@ -11,39 +11,40 @@ myname1=${myname%.*}
 
 #-------------------------------------------------------------------------------
 
-cycle_download () {
+download_parse_conf () {
+  mkdir -p $outdir/${TIMEf}
+  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/cycle_conf/ $outdir/${TIMEf}/cycle_conf
+  # parse ...
+}
+
+download () {
   ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale_init.tar.gz scale_init"
   ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale.tar.gz scale"
   ssh ${r_url} "cd ${r_outdir}/${ETIMEf}/log && tar --remove-files -czf obsope.tar.gz obsope"
   ssh ${r_url} "cd ${r_outdir}/${ETIMEf}/log && tar --remove-files -czf letkf.tar.gz letkf"
   ssh ${r_url} "cd ${r_outdir}/${ETIMEf} && tar --remove-files -czf obsgues.tar.gz obsgues"
 
-  mkdir -p $outdir/${TIMEf}
-  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/cycle_conf $outdir/${TIMEf}
   mkdir -p $outdir/${TIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale_init.tar.gz $outdir/${TIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
 
   mkdir -p $outdir/${ETIMEf}/gues
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/mean $outdir/${ETIMEf}/gues
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/meanf $outdir/${ETIMEf}/gues
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/sprd $outdir/${ETIMEf}/gues
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/mean/ $outdir/${ETIMEf}/gues/mean
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/meanf/ $outdir/${ETIMEf}/gues/meanf
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/sprd/ $outdir/${ETIMEf}/gues/sprd
 
   mkdir -p $outdir/${ETIMEf}/anal
-  rsync -av ${r_url}:${r_outdir}/${ETIMEf}/anal/mean $outdir/${ETIMEf}/anal
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/anal/sprd $outdir/${ETIMEf}/anal
-  if ((ETIMEh == 0)); then
-#  if ((ETIMEdoy % 5 == 1 && ETIMEh == 0)); then
+  rsync -av ${r_url}:${r_outdir}/${ETIMEf}/anal/mean/ $outdir/${ETIMEf}/anal/mean
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/anal/sprd/ $outdir/${ETIMEf}/anal/sprd
+#  if ((ETIMEh == 0)); then
+##  if ((ETIMEdoy % 5 == 1 && ETIMEh == 0)); then
     rsync -av ${r_url}:${r_outdir}/${ETIMEf}/anal/[0-9]* $outdir/${ETIMEf}/anal
-  fi
+#  fi
 
   mkdir -p $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/log/obsope.tar.gz $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/log/letkf.tar.gz $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/obsgues.tar.gz $outdir/${ETIMEf}
-
-  ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}_da"
-  ssh ${r_url} "rm ${r_obsdir}/obs_${ETIMEf}.dat"
 
   ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/[0-9]*"
   if ((FCST_TIMEf >= TIMEf)); then
@@ -52,6 +53,9 @@ cycle_download () {
 
   ssh ${r_url} "find ${r_outdir}/${TIMEf} -depth -type d -empty -exec rmdir {} \;"
   ssh ${r_url} "find ${r_outdir}/${ETIMEf} -depth -type d -empty -exec rmdir {} \;"
+
+  ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}_da"
+  ssh ${r_url} "rm ${r_obsdir}/obs_${ETIMEf}.dat"
 
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [DONE] $ETIMEf - Download and remove remote files (background job completed)" >> $logfile
@@ -136,6 +140,9 @@ while ((success == 0)) && ((ntry < max_try)); do
   else
     now="$(date -u +'%Y-%m-%d %H:%M:%S')"
     echo "$now [ERR ] $ETIMEf/$ntry - Exit code: $res" >> $logfile
+    if ((res >= 100 && res <= 110)); then
+      download_parse_conf
+    fi
     sleep 10s
   fi
 done
@@ -143,7 +150,8 @@ done
 if ((success == 1)); then
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [TRAN] $ETIMEf - Download and remove remote files (background job)" >> $logfile
-  cycle_download >> $outfile 2>&1 &
+  download_parse_conf
+  download >> $outfile 2>&1 &
 
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [DONE] $ETIMEf" >> $logfile

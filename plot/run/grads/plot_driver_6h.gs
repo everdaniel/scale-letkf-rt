@@ -20,7 +20,10 @@ while (it <= tend)
 
   'sfc_prcp_slp.gs'
   'sfc_wind.gs'
+  'sfc_2mtemp.gs'
+  'sfc_temp.gs'
   '850_rh_temp_wind.gs'
+  '700_vvel_hgt.gs'
   '500_vort_gph.gs'
   '300_wspd_gph.gs'
   'olr.gs'

@@ -36,7 +36,9 @@ function setRGB()
 'set rgb 102  40 150 210'
 'set rgb 103  30 140 200'
 'set rgb 104  20 130 190'
-'set rgb 105 128 112 235'
+'set rgb 105 192 180 255'
+'set rgb 106 160 140 255'
+'set rgb 107 128 112 235'
 
 'set rgb 121 255 192  60'
 'set rgb 122 255  96   0'
@@ -45,7 +47,7 @@ function setRGB()
 'set rgb 125 165   0   0'
 'set rgb 126 248 160 160'
 'set rgb 127 230 112 112'
-'set rgb 128 230  80  80'
+'set rgb 128 220  80  80'
 'set rgb 129 200  60  60'
 'set rgb 130 180  40  40'
 

@@ -11,28 +11,30 @@ myname1=${myname%.*}
 
 #-------------------------------------------------------------------------------
 
-fcst_download () {
+download_parse_conf () {
+  mkdir -p $outdir/${TIMEf}
+  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst_conf/ $outdir/${TIMEf}/fcst_conf
+  # parse ...
+}
+
+download () {
 #  ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale_init.tar.gz scale_init"
 #  ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale.tar.gz scale"
 
-  mkdir -p $outdir/${TIMEf}
-  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst_conf $outdir/${TIMEf}
 #  mkdir -p $outdir/${TIMEf}/log
 #  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale_init.tar.gz $outdir/${TIMEf}/log
 #  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
 
   mkdir -p $outdir/${TIMEf}/fcst
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean/ $outdir/${TIMEf}/fcst/mean
+
   if ((CYCLE_TIMEf >= $(date -ud "$LCYCLE second ${TIME}" +'%Y%m%d%H%M%S'))); then
-    rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean $outdir/${TIMEf}/fcst
-  else
-    rsync -av ${r_url}:${r_outdir}/${TIMEf}/fcst/mean $outdir/${TIMEf}/fcst
+    ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
   fi
 
-  ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}"
-
-  ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
-
   ssh ${r_url} "find ${r_outdir}/${TIMEf} -depth -type d -empty -exec rmdir {} \;"
+
+  ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}"
 
   $plotdir/plot.sh "${TIME}"
 
@@ -133,6 +135,9 @@ while ((success == 0)) && ((ntry < max_try)); do
   else
     now="$(date -u +'%Y-%m-%d %H:%M:%S')"
     echo "$now [ERR ] $TIMEf/$ntry - Exit code: $res" >> $logfile
+    if ((res >= 100 && res <= 110)); then
+      download_parse_conf
+    fi
     sleep 10s
   fi
 done
@@ -140,7 +145,8 @@ done
 if ((success == 1)); then
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [TRAN] $TIMEf - Download files and plot figures (background job)" >> $logfile
-  fcst_download >> $outfile 2>&1 &
+  download_parse_conf
+  download >> $outfile 2>&1 &
 
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [DONE] $TIMEf" >> $logfile

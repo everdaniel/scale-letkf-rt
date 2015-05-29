@@ -17,7 +17,7 @@ outf = 'out/'name'_'tfilename
 
 'set mpdset hires'
 'set display color white'
-'set map 1 1 2'
+'set map 1 1 3'
 'set grid on 3 1'
 'set xlopts 1 4 0.12'
 'set ylopts 1 4 0.12'

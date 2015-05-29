@@ -10,7 +10,7 @@ tskip=6
 threads=21
 tint=21600
 
-figlist='sfc_prcp sfc_wind 850_temp 500_vort 300_wspd olr_ir max_ref'
+figlist='sfc_prcp sfc_wind sfc_2mtemp sfc_temp 850_temp 700_vvel 500_vort 300_wspd olr_ir max_ref'
 
 #----
 
