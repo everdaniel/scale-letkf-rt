@@ -28,9 +28,9 @@ download () {
   mkdir -p $outdir/${TIMEf}/fcst
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean/ $outdir/${TIMEf}/fcst/mean
 
-  if ((CYCLE_TIMEf >= $(date -ud "$LCYCLE second ${TIME}" +'%Y%m%d%H%M%S'))); then
-    ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
-  fi
+#  if ((CYCLE_TIMEf >= $(date -ud "$LCYCLE second ${TIME}" +'%Y%m%d%H%M%S'))); then
+#    ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
+#  fi
 
   ssh ${r_url} "find ${r_outdir}/${TIMEf} -depth -type d -empty -exec rmdir {} \;"
 

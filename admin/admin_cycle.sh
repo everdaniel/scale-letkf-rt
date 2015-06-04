@@ -46,6 +46,7 @@ download () {
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/log/letkf.tar.gz $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/obsgues.tar.gz $outdir/${ETIMEf}
 
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/anal/mean/ $outdir/${ETIMEf}/anal/mean
   ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/[0-9]*"
   if ((FCST_TIMEf >= TIMEf)); then
     ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
