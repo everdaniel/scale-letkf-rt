@@ -46,7 +46,8 @@ download () {
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/log/letkf.tar.gz $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/obsgues.tar.gz $outdir/${ETIMEf}
 
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/anal/mean/ $outdir/${ETIMEf}/anal/mean
+  mkdir -p $outdir/${TIMEf}/anal/mean
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/anal/mean/init_ocean.pe*.nc $outdir/${TIMEf}/anal/mean
   ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/[0-9]*"
   if ((FCST_TIMEf >= TIMEf)); then
     ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
@@ -133,7 +134,8 @@ while ((success == 0)) && ((ntry < max_try)); do
   ntry=$((ntry+1))
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
   echo "$now [RUN ] $ETIMEf/$ntry" >> $logfile
-  ssh ${r_url} "cd ${r_rundir} && ./admin.sh cycle ${TIMEf} ${TIME_DT[$ntry]} ${TIME_DT_DYN[$ntry]} ${NNODES[$ntry]} ${WTIME_L[$ntry]}"
+#  ssh ${r_url} "cd ${r_rundir} && ./admin.sh cycle ${TIMEf} ${TIME_DT[$ntry]} ${TIME_DT_DYN[$ntry]} ${NNODES[$ntry]} ${WTIME_L[$ntry]}"
+  ssh ${r_url} "cd ${r_rundir} && ./admin_micro.sh cycle ${TIMEf} ${TIME_DT[$ntry]} ${TIME_DT_DYN[$ntry]} ${NNODES_m[$ntry]} ${WTIME_L_m[$ntry]}"
   res=$?
 
   if ((res == 0)); then

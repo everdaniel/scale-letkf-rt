@@ -32,6 +32,13 @@ WTIME_L[1]='00:45:00'
 WTIME_L[2]='01:10:00'
 WTIME_L[3]='01:30:00'
 
+NNODES_m[1]=816
+NNODES_m[2]=816
+NNODES_m[3]=816
+WTIME_L_m[1]='00:30:00'
+WTIME_L_m[2]='00:30:00'
+WTIME_L_m[3]='00:30:00'
+
 F_r_rundir="${r_wkdir}/scale-letkf-fcst/scale/run"
 
 FCSTLEN=432000
