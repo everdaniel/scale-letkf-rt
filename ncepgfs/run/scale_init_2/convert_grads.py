@@ -14,12 +14,13 @@ hour = int(sys.argv[6])
 
 print(basename)
 
-vcoor = 'o'
+#vcoor = 'o'
+vcoor = 'p'
 #plevels = [100000., 92500., 85000., 70000., 50000., 30000., 20000., 10000., 5000., 2000., 1000.]
 plevels = [85000., 70000., 50000., 30000.]
 #varout_3d = ['u', 'v', 'w', 'p', 'tk', 'theta', 'rho', 'momx', 'momy', 'momz', 'rhot', 'z', 'qv', 'qc', 'qr', 'qi', 'qs', 'qg', 'qhydro', 'dbz']
-varout_3d = ['u', 'v', 'w', 'tk', 'z', 'rh', 'dbz']
-varout_2d = ['topo', 'u10', 'v10', 't2', 'slp', 'rain', 'snow', 'max_dbz', 'olr', 'tsfc', 'sst']
+varout_3d = ['u', 'v', 'w', 'tk', 'z', 'dbz']
+varout_2d = ['topo', 'slp', 'rain', 'snow', 'max_dbz']
 proj = {
 'type': 'LC',
 'basepoint_lon': 135.,

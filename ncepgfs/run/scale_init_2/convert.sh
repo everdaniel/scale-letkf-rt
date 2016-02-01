@@ -45,8 +45,11 @@ while (($(date -ud "$time" '+%s') <= $(date -ud "$tend" '+%s'))); do
 #    mv $file $outdir/${timef2}/init${file_suffix}
 #  done
 
-  mkdir -p $outdir/grads_o
-  python3 convert_grads.py "$outdir/${timef2}/init" "$outdir/grads_o" $YYYY $MM $DD $HH
+#  mkdir -p $outdir/grads_o
+#  python3 convert_grads.py "$outdir/${timef2}/init" "$outdir/grads_o" $YYYY $MM $DD $HH
+
+  mkdir -p $outdir/grads
+  python3 convert_grads.py "$outdir/${timef2}/init" "$outdir/grads" $YYYY $MM $DD $HH
 
 time=$(date -ud "$tint second $time" '+%Y-%m-%d %H')
 done

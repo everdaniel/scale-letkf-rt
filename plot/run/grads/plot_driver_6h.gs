@@ -22,6 +22,8 @@ while (it <= tend)
   'sfc_wind.gs'
   'sfc_2mtemp.gs'
   'sfc_temp.gs'
+  'sfc_accuprcp.gs'
+  'sfc_accusnow.gs'
   '850_rh_temp_wind.gs'
   '700_vvel_hgt.gs'
   '500_vort_gph.gs'

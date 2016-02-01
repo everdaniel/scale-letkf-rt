@@ -10,7 +10,7 @@ tskip=6
 threads=21
 tint=21600
 
-figlist='sfc_prcp sfc_wind sfc_2mtemp sfc_temp 850_temp 700_vvel 500_vort 300_wspd olr_ir max_ref'
+figlist='sfc_prcp sfc_wind sfc_2mtemp sfc_temp sfc_aprcp sfc_asnow 850_temp 700_vvel 500_vort 300_wspd olr_ir max_ref'
 
 #----
 
@@ -19,7 +19,6 @@ wkdir="$(cd "$( dirname "$0" )" && pwd)"
 lockfile="$wkdir/plot.lock"
 logfile="$wkdir/plot.log"
 outfile="$wkdir/plot.out"
-convertdir="$wkdir/run/tmp"
 plotdir="$wkdir/run/grads"
 outdir="$(cd "$wkdir/../exp/EastAsia_18km_48p" && pwd)"
 web_fmdir="bowmore:/srv/www/htdocs/scale/fm"
@@ -28,13 +27,10 @@ web_fmdir="bowmore:/srv/www/htdocs/scale/fm"
 
 cd ${wkdir}
 
-now=`date -u +'%Y-%m-%d %H:%M:%S'`
-if [ -e "${wkdir}/running" ]; then
-  echo "$now [PREV]" >> $logfile
-  exit
-else
-  touch $lockfile
-fi
+while [ -e "$lockfile" ]; do
+  sleep 10s
+done
+touch $lockfile
 
 TIME="$(date -ud "$timestart" +'%Y-%m-%d %H:%M:%S')"
 TIMEf="$(date -ud "${TIME}" +'%Y%m%d%H%M%S')"
@@ -58,53 +54,18 @@ tnum_mod=$((tnum % threads))
 #----
 
 now=`date -u +'%Y-%m-%d %H:%M:%S'`
-echo "$now [RUN ] $TIMEf - Convert to GrADS using $threads threads" >> $logfile
+echo "$now [RUN ] $TIMEf - Convert to GrADS (gues/anal)" >> $logfile
 
-mkdir -p $convertdir
-rm -fr $convertdir/*
+python3 $wkdir/convert_letkfout.py "$outdir" "$TIMEf" \
+        > $wkdir/convert_letkfout.log 2>&1
 
-ito=0
-for ith in $(seq $threads); do
-  mkdir -p $convertdir/${ith}/${TIMEf}
-  cd $convertdir/${ith}/${TIMEf}
-  ln -fs $outdir/${TIMEf}/fcst .
+now=`date -u +'%Y-%m-%d %H:%M:%S'`
+echo "$now [RUN ] $TIMEf - Convert to GrADS (fcst) using $threads threads" >> $logfile
 
-  if ((ith <= tnum_mod)); then
-    itstart=$((tstart + ito * tskip))
-    itend=$((tstart + (ito + tnum_div) * tskip + 1))
-    echo "Process #${ith}: slot [$ito - $((ito + tnum_div))]" >> $outfile
-    ito=$((ito + tnum_div + 1))
-  else
-    itstart=$((tstart + ito * tskip))
-    itend=$((tstart + (ito + tnum_div - 1) * tskip + 1))
-    echo "Process #${ith}: slot [$ito - $((ito + tnum_div - 1))]" >> $outfile
-    ito=$((ito + tnum_div))
-  fi
+mpirun $threads python3 $wkdir/convert_letkfout_fcst.py "$outdir" "$TIMEf" \
+                        > $wkdir/convert_letkfout_fcst.log 2>&1
 
-  python3 $wkdir/convert_letkfout.py "$convertdir/${ith}" "$TIMEf" $itstart $itend $tskip \
-          > $convertdir/${ith}/convert.log 2>&1 &
-  sleep 1s
-done
-wait
-
-mkdir -p $outdir/${TIMEf}/fcstgp
-rm -f $outdir/${TIMEf}/fcstgp/mean.grd
-alldone=1
-for ith in $(seq $threads); do
-  if [ -s "$convertdir/${ith}/${TIMEf}/fcstgp/mean.grd" ]; then
-    cat $convertdir/${ith}/${TIMEf}/fcstgp/mean.grd >> $outdir/${TIMEf}/fcstgp/mean.grd
-  else
-    alldone=0
-    break
-  fi
-done
-
-if ((alldone == 1)); then
-  line_replaced=$(grep 'tdef' $convertdir/1/${TIMEf}/ctl/fcstgp_mean.ctl)
-  line_new="tdef $tnum $(echo $line_replaced | cut -d ' ' -f3-)"
-  mkdir -p $outdir/${TIMEf}/ctl
-  sed "s/${line_replaced}/${line_new}/" $convertdir/1/${TIMEf}/ctl/fcstgp_mean.ctl > $outdir/${TIMEf}/ctl/fcstgp_mean.ctl
-
+if [ -s "$outdir/${TIMEf}/fcstgp/mean.grd" ]; then
   now=`date -u +'%Y-%m-%d %H:%M:%S'`
   echo "$now [DONE] $TIMEf - Convert to GrADS completed" >> $logfile
 fi

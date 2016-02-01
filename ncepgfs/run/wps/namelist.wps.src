@@ -23,7 +23,7 @@
  truelat1  =  30.0,
  truelat2  =  40.0,
  stand_lon = 135.0,
- geog_data_path = '/data6/gylien/WRF/geog/'
+ geog_data_path = '/data7/gylien/WRF/geog/'
 /
 
 &ungrib
