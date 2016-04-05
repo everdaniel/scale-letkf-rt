@@ -34,7 +34,7 @@ proj = {
 }
 extrap = True
 
-topofile = os.path.abspath(__file__) + '/topo/topo'
+topofile = os.path.dirname(os.path.abspath(__file__)) + '/topo/topo'
 
 stime = dt.datetime.strptime(stimestr, '%Y%m%d%H%M%S')
 etime = stime

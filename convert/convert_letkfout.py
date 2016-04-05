@@ -12,7 +12,8 @@ comm = None
 #---
 
 vcoor = 'p'
-hcoor = ['o', 'l']
+hcoor = 'o'
+#hcoor = ['o', 'l']
 plevels = [100000., 92500., 85000., 70000., 50000., 30000., 20000., 10000., 5000., 2000., 1000., 500.]
 
 #varout_3d = ['u', 'v', 'w', 'p', 'tk', 'theta', 'rho', 'momx', 'momy', 'momz', 'rhot', 'z', 'qv', 'qc', 'qr', 'qi', 'qs', 'qg', 'qhydro', 'dbz']  # variables for restart file
@@ -38,10 +39,8 @@ dlat = 0.5
 letkfoutdir = '/data9/gylien/realtime/exp/EastAsia_18km_48p'
 topofile = os.path.dirname(os.path.abspath(__file__)) + '/topo/topo'
 
-#stime = dt.datetime(2015,  6,  8,  6,  0,  0)
-#etime = dt.datetime(2015,  8, 23, 18,  0,  0)
-stime = dt.datetime(2015, 11,  9,  0,  0,  0)
-etime = dt.datetime(2015, 11, 30, 18,  0,  0)
+stime = dt.datetime(2016,  1, 27,  6,  0,  0)
+etime = dt.datetime(2016,  2,  1,  0,  0,  0)
 tint = dt.timedelta(seconds=21600)
 
 outtype = ['gues', 'anal']
