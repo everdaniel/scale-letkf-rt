@@ -12,8 +12,8 @@ myname1=${myname%.*}
 #-------------------------------------------------------------------------------
 
 download_parse_conf () {
-  mkdir -p $outdir/${TIMEf}
-  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst_conf/ $outdir/${TIMEf}/fcst_conf
+  mkdir -p $outdir/exp
+  rsync -aLvz --remove-source-files ${r_url}:${F_r_rundir}/exp/ $outdir/exp
   # parse ...
 }
 

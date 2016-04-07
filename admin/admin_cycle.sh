@@ -12,8 +12,8 @@ myname1=${myname%.*}
 #-------------------------------------------------------------------------------
 
 download_parse_conf () {
-  mkdir -p $outdir/${TIMEf}
-  rsync -avz --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/cycle_conf/ $outdir/${TIMEf}/cycle_conf
+  mkdir -p $outdir/exp
+  rsync -aLvz --remove-source-files ${r_url}:${r_rundir}/exp/ $outdir/exp
   # parse ...
 }
 
@@ -24,9 +24,9 @@ download () {
   ssh ${r_url} "cd ${r_outdir}/${ETIMEf}/log && tar --remove-files -czf letkf.tar.gz letkf"
   ssh ${r_url} "cd ${r_outdir}/${ETIMEf} && tar --remove-files -czf obsgues.tar.gz obsgues"
 
-  mkdir -p $outdir/${TIMEf}/log
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale_init.tar.gz $outdir/${TIMEf}/log
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
+  mkdir -p $outdir/${TIMEf}/hist
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/hist/meanf/ $outdir/${TIMEf}/hist/meanf
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/hist/[0-9]* $outdir/${TIMEf}/hist
 
   mkdir -p $outdir/${ETIMEf}/gues
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/gues/mean/ $outdir/${ETIMEf}/gues/mean
@@ -41,6 +41,10 @@ download () {
 ##  if ((ETIMEdoy % 5 == 1 && ETIMEh == 0)); then
     rsync -av ${r_url}:${r_outdir}/${ETIMEf}/anal/[0-9]* $outdir/${ETIMEf}/anal
 #  fi
+
+  mkdir -p $outdir/${TIMEf}/log
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale_init.tar.gz $outdir/${TIMEf}/log
+  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
 
   mkdir -p $outdir/${ETIMEf}/log
   rsync -av --remove-source-files ${r_url}:${r_outdir}/${ETIMEf}/log/obsope.tar.gz $outdir/${ETIMEf}/log

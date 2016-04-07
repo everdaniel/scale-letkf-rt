@@ -79,7 +79,7 @@ cd $wkdir/../station/ANN-160208
 /home/gulan/anaconda3/bin/python AnnForecast.py --time "$TIMEf"
 cd ${wkdir}
 
-if [ -s "$wkdir/../station/ANN-160208/63518.${TIMEf}.ann" ]; then
+if [ -s "$wkdir/../station/ANN-160208/forecast/63518.${TIMEf}.ann" ]; then
   now=`date -u +'%Y-%m-%d %H:%M:%S'`
   echo "$now [DONE] $TIMEf - ANN forecasts completed" >> $logfile
 fi

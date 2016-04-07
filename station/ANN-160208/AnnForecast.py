@@ -32,7 +32,8 @@ DIFF = 273.15
 DEFAULT_FEATURE_DIR="./features/"
 DEFAULT_OUTPUT_DIR="./forecast/"
 TEMPLATES=["/data7/gylien/realtime/exp/EastAsia_18km_48p_part1/{}/fcst/mean/history.pe000020.nc",
-		   "/data9/gylien/realtime/exp/EastAsia_18km_48p/{}/fcst/mean/history.pe000020.nc"]
+		   "/data9/gylien/realtime/exp/EastAsia_18km_48p/{}/fcst/mean/history.pe000020.nc",
+		   "/data7/gylien/realtime/exp/ctl_d1/{}/fcst/mean/history.pe000020.nc"]
 
 def _to_str(dt):
     return dt.strftime("%Y%m%d%H%M%S")
