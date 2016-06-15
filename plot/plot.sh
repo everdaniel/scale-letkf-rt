@@ -21,7 +21,7 @@ logfile="$wkdir/plot.log"
 outfile="$wkdir/plot.out"
 plotdir="$wkdir/run/grads"
 outdir="$(cd "$wkdir/../exp/EastAsia_18km_48p" && pwd)"
-web_fmdir="bowmore:/srv/www/htdocs/scale/fm"
+web_fmdir="bowmore:/home/gylien/public_html/scale/data/ctl"
 
 #----
 
@@ -54,9 +54,9 @@ tnum_mod=$((tnum % threads))
 #----
 
 now=`date -u +'%Y-%m-%d %H:%M:%S'`
-echo "$now [RUN ] $TIMEf - Convert to GrADS (gues/anal)" >> $logfile
+echo "$now [RUN ] $TIMEf - Convert to GrADS (gues/anal) using 5 threads" >> $logfile
 
-python3 $wkdir/convert_letkfout.py "$outdir" "$TIMEf" \
+mpirun 5 python3 $wkdir/convert_letkfout.py "$outdir" "$TIMEf" \
         > $wkdir/convert_letkfout.log 2>&1
 
 now=`date -u +'%Y-%m-%d %H:%M:%S'`
@@ -118,7 +118,9 @@ cd $wkdir
 
 #----
 
-mkdir -p $outdir/${TIMEf}/fcstgpi/mean
+for prefix in $figlist; do
+  mkdir -p $outdir/${TIMEf}/fcstgpi/mean/${prefix}
+done
 
 alldone=1
 itfcst=0
@@ -131,12 +133,12 @@ for itplot in $(seq $tnum); do
 
   for prefix in $figlist; do
     if [ -s "$plotdir/out/${prefix}_f${itfcstf}.png" ]; then
-      mv -f $plotdir/out/${prefix}_f${itfcstf}.png $outdir/${TIMEf}/fcstgpi/mean
+      mv -f $plotdir/out/${prefix}_f${itfcstf}.png $outdir/${TIMEf}/fcstgpi/mean/${prefix}
     else
       alldone=0
     fi
     if [ -s "$plotdir/out/${prefix}_f${itfcstf}.eps" ]; then
-      mv -f $plotdir/out/${prefix}_f${itfcstf}.eps $outdir/${TIMEf}/fcstgpi/mean
+      mv -f $plotdir/out/${prefix}_f${itfcstf}.eps $outdir/${TIMEf}/fcstgpi/mean/${prefix}
     else
       alldone=0
     fi
@@ -146,7 +148,7 @@ for itplot in $(seq $tnum); do
 #  itime="$(date -ud "$tint second $itime" +'%Y-%m-%d %H:%M:%S')"
 done
 
-rsync -avz $outdir/${TIMEf}/fcstgpi/mean/*.png ${web_fmdir}/${TIMEf} >> $outfile 2>&1
+rsync -avz --include="*/" --include="*.png" --exclude="*" $outdir/${TIMEf}/fcstgpi/mean/ ${web_fmdir}/${TIMEf} >> $outfile 2>&1
 
 now=`date -u +'%Y-%m-%d %H:%M:%S'`
 if ((alldone == 1)); then

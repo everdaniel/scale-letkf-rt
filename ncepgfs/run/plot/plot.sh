@@ -17,7 +17,8 @@ gribfile_dir="$(dirname ${gribfile_prefix})"
 gribfile_base="$(basename ${gribfile_prefix})"
 tint=21600
 
-web_fmdir="bowmore:/srv/www/htdocs/scale/fmv"
+web_host="bowmore"
+web_remote_dir="/home/gylien/public_html/scale/data/gfs"
 
 #----
 
@@ -44,11 +45,13 @@ itfcstf=$(printf '%06d' $(((tfcst-1) * tint)))
 
 for prefix in $figlist; do
   if [ -s "$wkdir/out/${prefix}_f${itfcstf}.png" ]; then
-    rsync -avz $wkdir/out/${prefix}_f${itfcstf}.png ${web_fmdir}/${timebasef2}/
+    ssh $web_host "mkdir -p ${web_remote_dir}/${timebasef2}/${prefix}"
+    rsync -avz $wkdir/out/${prefix}_f${itfcstf}.png ${web_host}:${web_remote_dir}/${timebasef2}/${prefix}
     mv -f $wkdir/out/${prefix}_f${itfcstf}.png $outdir
   fi
   if [ -s "$wkdir/out/${prefix}_f${itfcstf}.eps" ]; then
-#    rsync -avz $wkdir/out/${prefix}_f${itfcstf}.eps ${web_fmdir}/${timebasef2}/
+#    ssh $web_host "mkdir -p ${web_remote_dir}/${timebasef2}/${prefix}"
+#    rsync -avz $wkdir/out/${prefix}_f${itfcstf}.eps ${web_host}:${web_remote_dir}/${timebasef2}/${prefix}
     mv -f $wkdir/out/${prefix}_f${itfcstf}.eps $outdir
   fi
 done

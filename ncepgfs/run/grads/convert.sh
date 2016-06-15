@@ -28,5 +28,10 @@ while (($(date -ud "$time" '+%s') <= $(date -ud "$tend" '+%s'))); do
   ${wkdir}/g2ctl ${gribfile_base}.${timef2} > ${gribfile_base}.${timef2}.ctl
   gribmap -i ${gribfile_base}.${timef2}.ctl
 
+  if [ "$(basename ${gribfile_dir})" = "${timef2:0:10}" ]; then
+    grads -blc "${wkdir}/convert_grads.gs ${gribfile_base}.${timef2}.ctl"
+    mv -f grads.fwrite ${gribfile_base}.${timef2}.grd
+  fi
+
 time=$(date -ud "$tint second $time" '+%Y-%m-%d %H')
 done

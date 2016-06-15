@@ -43,6 +43,6 @@ rm -f FILE* met_em.d01.*
 
 ./geogrid.exe
 ./rmter.exe
-./link_grib.csh ${gribfile_prefix}.*
+./link_grib.csh ${gribfile_prefix}.${YYYYs}${MMs}${DDs}${HHs}0000  ### only valid when $tstart == $tend
 ./ungrib.exe
 ./metgrid.exe

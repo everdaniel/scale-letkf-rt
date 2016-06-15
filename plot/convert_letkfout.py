@@ -5,10 +5,10 @@ import sys
 import os
 
 #--- use mpi4py
-#from mpi4py import MPI
-#comm = MPI.COMM_WORLD
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
 #--- do not use mpi4py
-comm = None
+#comm = None
 #---
 
 letkfoutdir = sys.argv[1]
@@ -47,4 +47,4 @@ letkfout_grads(letkfoutdir, topofile=topofile, proj=proj, stime=stime, etime=eti
                outtype=outtype, member=member,
                vcoor=vcoor, hcoor=hcoor, plevels=plevels, dlon=dlon, dlat=dlat,
                varout_3d=varout_3d, varout_2d=varout_2d, extrap=extrap,
-               comm=comm)
+               comm=comm, sim_read=5)

@@ -4,8 +4,8 @@ wkdir="$( cd "$( dirname "$0" )" && pwd )"
 
 cd ${wkdir}
 
-tstart="2015-05-06 06:00:00"
-tend="2015-06-02 06:00:00"
+tstart="2016-05-14 18:00:00"
+tend="2016-05-14 18:00:00"
 tint=21600
 
 time=$(date -ud "$tstart" +'%Y-%m-%d %H:%M:%S')
@@ -38,17 +38,17 @@ while (($(date -ud "$time" +'%s') <= $(date -ud "$tend" +'%s'))); do
 #      fi
 #    fi
 
-#    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - WPS"
-#    bash $wkdir/run/wps/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/${YYYYMMDDHH}/gfs"
+    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - WPS"
+    bash $wkdir/run/wps/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/${YYYYMMDDHH}/gfs"
 
-#    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - WRF"
-#    bash $wkdir/run/wrf/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/../ncepgfs_wrf/${YYYYMMDDHH}/mean"
+    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - WRF"
+    bash $wkdir/run/wrf/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/../ncepgfs_wrf/${YYYYMMDDHH}/mean"
 
     echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - GrADS"
     bash $wkdir/run/grads/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/${YYYYMMDDHH}/gfs"
 
-#    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - Plot"
-#    bash $wkdir/run/plot/plot.sh "$TIME_fcst" "$GET_TIME" $((t/6+1)) "$wkdir/${YYYYMMDDHH}/gfs"
+    echo "[CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - Plot"
+    bash $wkdir/run/plot/plot.sh "$TIME_fcst" "$GET_TIME" $((t/6+1)) "$wkdir/${YYYYMMDDHH}/gfs"
 
 #    if ((t == 0)); then
         
