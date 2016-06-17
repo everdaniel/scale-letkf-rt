@@ -28,7 +28,7 @@ download_parse_conf () {
 download () {
   istime="$TIME"
   istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
-  iatime="$(date -ud "$LCYCLE second $istime" +'%Y%m%d%H%M%S')"
+  iatime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
   iatimef="$(date -ud "$iatime" +'%Y%m%d%H%M%S')"
   while ((istimef <= ETIMEf)); do
     ssh ${r_url} "cd ${r_outdir}/${istimef}/log && tar --remove-files -czf scale_init.tar.gz scale_init"
@@ -79,7 +79,7 @@ download () {
 
     istime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
     istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
-    iatime="$(date -ud "$LCYCLE second $istime" +'%Y%m%d%H%M%S')"
+    iatime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
     iatimef="$(date -ud "$iatime" +'%Y%m%d%H%M%S')"
   done
 
