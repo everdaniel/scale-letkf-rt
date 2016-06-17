@@ -10,6 +10,15 @@ myname1=${myname%.*}
 
 #-------------------------------------------------------------------------------
 
+function unlock () {
+  if (($(cat $lockfile) == $$)); then
+    rm -f $lockfile
+  fi
+}
+trap unlock EXIT
+
+#-------------------------------------------------------------------------------
+
 download_parse_conf () {
   mkdir -p $outdir/exp
   rsync -aLvz --remove-source-files ${r_url}:${F_r_rundir}/exp/ $outdir/exp
@@ -17,28 +26,35 @@ download_parse_conf () {
 }
 
 download () {
-#  ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale_init.tar.gz scale_init"
-#  ssh ${r_url} "cd ${r_outdir}/${TIMEf}/log && tar --remove-files -czf scale.tar.gz scale"
+  istime="$TIME"
+  istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
+  while ((istimef <= ETIMEf)); do
+    ssh ${r_url} "cd ${r_outdir}/${istimef}/log && tar --remove-files -czf fcst_scale_init.tar.gz fcst_scale_init"
+    ssh ${r_url} "cd ${r_outdir}/${istimef}/log && tar --remove-files -czf fcst_scale.tar.gz fcst_scale"
 
-#  mkdir -p $outdir/${TIMEf}/log
-#  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale_init.tar.gz $outdir/${TIMEf}/log
-#  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/log/scale.tar.gz $outdir/${TIMEf}/log
+    mkdir -p $outdir/${istimef}/fcst
+    rsync -av --remove-source-files ${r_url}:${r_outdir}/${istimef}/fcst/mean/ $outdir/${istimef}/fcst/mean
 
-  mkdir -p $outdir/${TIMEf}/fcst
-  rsync -av --remove-source-files ${r_url}:${r_outdir}/${TIMEf}/fcst/mean/ $outdir/${TIMEf}/fcst/mean
+    mkdir -p $outdir/${istimef}/log
+    rsync -av --remove-source-files ${r_url}:${r_outdir}/${istimef}/log/fcst_scale_init.tar.gz $outdir/${istimef}/log
+    rsync -av --remove-source-files ${r_url}:${r_outdir}/${istimef}/log/fcst_scale.tar.gz $outdir/${istimef}/log
 
-#  if ((CYCLE_TIMEf >= $(date -ud "$LCYCLE second ${TIME}" +'%Y%m%d%H%M%S'))); then
-#    ssh ${r_url} "rm -r ${r_outdir}/${TIMEf}/anal/mean"
-#  fi
+#    if (($(date -ud "${CYCLE_TIME}" +'%Y%m%d%H%M%S') >= $(date -ud "$LCYCLE second ${istime}" +'%Y%m%d%H%M%S'))); then
+#      ssh ${r_url} "rm -r ${r_outdir}/${istimef}/anal/mean"
+#    fi
 
-  ssh ${r_url} "find ${r_outdir}/${TIMEf} -depth -type d -empty -exec rmdir {} \;"
+    ssh ${r_url} "find ${r_outdir}/${istimef} -depth -type d -empty -exec rmdir {} \;"
 
-  ssh ${r_url} "rm -r ${r_wrfdir}/${TIMEf}"
+    ssh ${r_url} "rm -r ${r_wrfdir}/${istimef}"
 
-  $plotdir/plot.sh "${TIME}"
+    $plotdir/plot.sh "${istime}"
+
+    istime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
+    istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
+  done
 
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-  echo "$now [DONE] $TIMEf - Download files and plot figures (background job completed)" >> $logfile
+  echo "$now [DONE] $TIMEPRINT - Download files and plot figures (background job completed)" >> $logfile
 }
 
 #-------------------------------------------------------------------------------
@@ -52,52 +68,86 @@ if [ -e "$lockfile" ]; then
   echo "$now [PREV]" >> $logfile
   exit
 else
-  touch $lockfile
+  echo $$ >> $lockfile
 fi
 
 PREVIOUS_TIME="$(cat $timefile)"
 TIME="$(date -ud "$LCYCLE second ${PREVIOUS_TIME}" +'%Y-%m-%d %H:%M:%S')"
 TIMEf="$(date -ud "${TIME}" +'%Y%m%d%H%M%S')"
-TIMEf2="$(date -ud "${TIME}" +'%Y%m%d%H')"
-TIMEh="$(date -ud "${TIME}" +'%k')"
 
-CYCLE_TIME="$(cat "$wkdir/admin_cycle.time")"
-CYCLE_TIMEf="$(date -ud "${FCST_TIME}" +'%Y%m%d%H%M%S')"
+TIMEstop="$(date -ud "$((LCYCLE * (F_MAX_CYCLE-1))) second $TIME" +'%Y-%m-%d %H:%M:%S')"
+
+if [ -s "$timestopfile" ]; then
+  TIMEstoptmp="$(cat $timestopfile)"
+  if (($(date -ud "$TIMEstoptmp" +'%s') < $(date -ud "$TIMEstop" +'%s'))); then
+    TIMEstop="$TIMEstoptmp"
+  fi
+fi
+
+if [ -s "$wkdir/admin_cycle.time" ]; then
+  CYCLE_TIME="$(cat "$wkdir/admin_cycle.time")"
+  if (($(date -ud "$CYCLE_TIME" +'%s') < $(date -ud "$TIMEstop" +'%s'))); then
+    TIMEstop="$CYCLE_TIME"
+  fi
+fi
+
+if (($(date -ud "$TIME" +'%s') > $(date -ud "$TIMEstop" +'%s'))); then
+  now="$(date -u +'%Y-%m-%d %H:%M:%S')"
+  echo "$now [STOP] $TIMEf" >> $logfile
+  exit
+fi
 
 #-------------------------------------------------------------------------------
 
 now="$(date -u +'%Y-%m-%d %H:%M:%S')"
 echo "$now [TRY ] $TIMEf" >> $logfile
 
-#if (($(date -u +'%s') - $(date -ud "$TIME" +'%s') > 86400)); then
-#  echo "$now [SKIP] $TIMEf - Initial conditions are too old." >> $logfile
-#  echo "$TIME" > $timefile
-#  rm -f $lockfile
-#  exit
-#fi
+n=0
+istime="$TIME"
+istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
+while ((istimef <= $(date -ud "$TIMEstop" +'%Y%m%d%H%M%S') || n == 0)); do
+  ready=1
 
-#if ((TIMEh == 6 || TIMEh == 18)); then
-#  echo "$now [SKIP] $TIMEf - Do not run forecast at this time." >> $logfile
-#  echo "$TIME" > $timefile
-#  rm -f $lockfile
-#  exit
-#fi
-
-tfcst=0
-while ((tfcst <= FCSTLEN)); do
-  itimef="$(date -ud "$tfcst second $TIME" +'%Y%m%d%H%M%S')"
-  if [ ! -s "$wrfdir/${TIMEf2}/mean/wrfout_${itimef}" ]; then
-    echo "$now [WAIT] $TIMEf - Model files are not ready." >> $logfile
-    rm -f $lockfile
-    exit
+  tfcst=0
+  while ((tfcst <= FCSTLEN)); do
+    itimef="$(date -ud "$tfcst second $istime" +'%Y%m%d%H%M%S')"
+    if [ ! -s "$wrfdir/$(date -ud "$istime" +'%Y%m%d%H')/mean/wrfout_${itimef}" ]; then
+      ready=0
+      break
+    fi
+    tfcst=$((tfcst+LCYCLE))
+  done
+  if ((ready == 0)); then
+    if ((n == 0)); then
+      echo "$now [WAIT] $istimef - Model files are not ready." >> $logfile
+      exit
+    else
+      break
+    fi
   fi
-  tfcst=$((tfcst+LCYCLE))
+
+  if [ ! -s "$outdir/${istimef}/anal/mean/init.pe000000.nc" ]; then
+    if ((n == 0)); then
+      echo "$now [WAIT] $istimef - LETKF analyses are not ready." >> $logfile
+      exit
+    else
+      break
+    fi
+  fi
+
+  n=$((n+1))
+  istime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
+  istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
 done
 
-if [ ! -s "$outdir/${TIMEf}/anal/mean/init.pe000000.nc" ]; then
-  echo "$now [WAIT] $TIMEf - LETKF analyses are not ready." >> $logfile
-  rm -f $lockfile
-  exit
+ETIME="$(date -ud "- $LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
+ETIMEf="$(date -ud "${ETIME}" +'%Y%m%d%H%M%S')"
+NCYCLE=$n
+
+if [ "$TIMEf" = "$ETIMEf" ]; then
+  TIMEPRINT="$TIMEf"
+else
+  TIMEPRINT="${TIMEf}-${ETIMEf}"
 fi
 
 #-------------------------------------------------------------------------------
@@ -105,35 +155,42 @@ fi
 rm -f $outfile
 
 now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-echo "$now [TRAN] $TIMEf - Upload files" >> $logfile
-mkdir -p $tmpdir/${TIMEf}/mean
-rm -fr $tmpdir/${TIMEf}/mean/*
-tfcst=0
-while ((tfcst <= FCSTLEN)); do
-  itimef="$(date -ud "$tfcst second $TIME" +'%Y%m%d%H%M%S')"
-  ln -s $wrfdir/${TIMEf2}/mean/wrfout_${itimef} $tmpdir/${TIMEf}/mean
-  tfcst=$((tfcst+LCYCLE))
+echo "$now [TRAN] $TIMEPRINT - Upload files" >> $logfile
+
+istime="$TIME"
+istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
+while ((istimef <= ETIMEf)); do
+  mkdir -p $tmpdir/${istimef}/mean
+  rm -fr $tmpdir/${istimef}/mean/*
+  tfcst=0
+  while ((tfcst <= FCSTLEN)); do
+    itimef="$(date -ud "$tfcst second $istime" +'%Y%m%d%H%M%S')"
+    ln -s $wrfdir/$(date -ud "$istime" +'%Y%m%d%H')/mean/wrfout_${itimef} $tmpdir/${istimef}/mean
+    tfcst=$((tfcst+LCYCLE))
+  done
+  rsync -avL $tmpdir/${istimef} ${r_url}:${r_wrfdir} >> $outfile
+  rm -fr $tmpdir/${istimef}/mean/*
+  rmdir $tmpdir/${istimef}/mean
+  rmdir $tmpdir/${istimef}
+
+  istime="$(date -ud "$LCYCLE second $istime" +'%Y-%m-%d %H:%M:%S')"
+  istimef="$(date -ud "$istime" +'%Y%m%d%H%M%S')"
 done
-rsync -avL $tmpdir/${TIMEf} ${r_url}:${r_wrfdir} >> $outfile
-rm -fr $tmpdir/${TIMEf}/mean/*
-rmdir $tmpdir/${TIMEf}/mean
-rmdir $tmpdir/${TIMEf}
 
 success=0
-max_try=3
 ntry=0
-while ((success == 0)) && ((ntry < max_try)); do
+while ((success == 0)) && ((ntry < F_MAX_TRY)); do
   ntry=$((ntry+1))
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-  echo "$now [RUN ] $TIMEf/$ntry" >> $logfile
-  ssh ${r_url} "cd ${F_r_rundir} && ./admin.sh fcst ${TIMEf} ${TIME_DT[$ntry]} ${TIME_DT_DYN[$ntry]} ${F_NNODES[$ntry]} ${F_WTIME_L[$ntry]}"
+  echo "$now [RUN ] $TIMEPRINT/$ntry" >> $logfile
+  ssh ${r_url} "cd ${F_r_rundir} && ./admin.sh fcst ${TIMEf} ${ETIMEf} ${TIME_DT[$ntry]} ${TIME_DT_DYN[$ntry]} $((${F_NNODES[$ntry]} * NCYCLE)) ${F_WTIME_L[$ntry]}"
   res=$?
 
   if ((res == 0)); then
     success=1
   else
     now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-    echo "$now [ERR ] $TIMEf/$ntry - Exit code: $res" >> $logfile
+    echo "$now [ERR ] $TIMEPRINT/$ntry - Exit code: $res" >> $logfile
     if ((res >= 100 && res <= 110)); then
       download_parse_conf
     fi
@@ -143,17 +200,13 @@ done
 
 if ((success == 1)); then
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-  echo "$now [TRAN] $TIMEf - Download files and plot figures (background job)" >> $logfile
+  echo "$now [TRAN] $TIMEPRINT - Download files and plot figures (background job)" >> $logfile
   download_parse_conf
   download >> $outfile 2>&1 &
 
   now="$(date -u +'%Y-%m-%d %H:%M:%S')"
-  echo "$now [DONE] $TIMEf" >> $logfile
-  echo "$TIME" > $timefile
+  echo "$now [DONE] $TIMEPRINT" >> $logfile
+  echo "$ETIME" > $timefile
 else
-  echo "$now [FAIL] $TIMEf - All trials failed" >> $logfile
+  echo "$now [FAIL] $TIMEPRINT - All trials failed" >> $logfile
 fi
-
-#-------------------------------------------------------------------------------
-
-rm -f $lockfile

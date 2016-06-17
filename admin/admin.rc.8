@@ -4,7 +4,8 @@ logfile="$wkdir/${myname1}.log"
 outfile="$wkdir/${myname1}.out"
 lockfile="$wkdir/${myname1}.lock"
 timefile="$wkdir/${myname1}.time"
-tmpdir="$wkdir/tmp"
+timestopfile="$wkdir/${myname1}.time.stop"
+tmpdir="$wkdir/tmp/${myname1}"
 
 wrfdir="$(cd "$wkdir/../ncepgfs_wrf" && pwd)"
 obsdir="$(cd "$wkdir/../ncepobs_gdas_letkf" && pwd)"
@@ -13,9 +14,10 @@ plotdir="$(cd "$wkdir/../plot" && pwd)"
 
 r_url="k01977@k.aics.riken.jp"
 r_wkdir="/volume63/data/hp150019/gylien/realtime"
+r_wrfdir_da="${r_wkdir}/ctl/ncepgfs_wrf_da"
 r_wrfdir="${r_wkdir}/ctl/ncepgfs_wrf"
 r_obsdir="${r_wkdir}/ctl/ncepobs"
-r_rundir="${r_wkdir}/scale_v160202/letkf_ctl_d1/scale/run"
+r_rundir="${r_wkdir}/scale_v160202/letkf_ctl_d1_test/scale/run"
 r_outdir="${r_wkdir}/ctl/exp_d1"
 
 LCYCLE=21600
@@ -42,7 +44,7 @@ WTIME_L_m[1]='00:30:00'
 WTIME_L_m[2]='00:30:00'
 WTIME_L_m[3]='00:30:00'
 
-F_r_rundir="${r_wkdir}/scale_v160202/letkf_ctl_d1_fcst/scale/run"
+F_r_rundir="${r_wkdir}/scale_v160202/letkf_ctl_d1_fcst_test/scale/run"
 
 FCSTLEN=432000
 F_NNODES[1]=48
@@ -52,3 +54,8 @@ F_WTIME_L[1]='02:15:00'
 F_WTIME_L[2]='03:30:00'
 #F_WTIME_L[3]='04:40:00'
 F_WTIME_L[3]='07:00:00'
+
+MAX_CYCLE=3
+F_MAX_CYCLE=9
+MAX_TRY=1
+F_MAX_TRY=2
