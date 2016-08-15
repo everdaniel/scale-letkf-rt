@@ -14,6 +14,8 @@ exp
 ncepgfs_wrf
 ncepgfs_scale
 ncepgfs/[0-9]*
+ncepgfs_0.25d/[0-9]*
+ncepgdas_0.25d/[0-9]*
 ncepobs/[0-9]*
 ncepobs_letkf
 ncepobs_gdas/[0-9]*

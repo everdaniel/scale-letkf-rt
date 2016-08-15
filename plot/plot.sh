@@ -20,7 +20,7 @@ lockfile="$wkdir/plot.lock"
 logfile="$wkdir/plot.log"
 outfile="$wkdir/plot.out"
 plotdir="$wkdir/run/grads"
-outdir="$(cd "$wkdir/../exp/EastAsia_18km_48p" && pwd)"
+outdir="$(cd "$wkdir/../exp/ctl_d1" && pwd)"
 web_fmdir="bowmore:/home/gylien/public_html/scale/data/ctl"
 
 #----
