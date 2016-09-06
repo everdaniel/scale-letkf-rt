@@ -9,7 +9,8 @@ nz = 11
 
 var3d = 'ugrdprs vgrdprs TMPprs HGTprs RHprs'
 nv3d = 5
-var2d = 'UGRD10m VGRD10m TMP2m PRMSLmsl'
+*var2d = 'UGRD10m VGRD10m TMP2m PRMSLmsl'
+var2d = 'UGRD10m VGRD10m TMP2m MSLETmsl'
 nv2d = 4
 
 'reinit'

@@ -1,14 +1,14 @@
-function plot (args)
-
 name = 'sfc_prcp'
 
 convert = '/data/opt/ImageMagick/6.9.1-3/bin/convert'
 pngquant = '/data/opt/pngquant/2.4.0/bin/pngquant'
 
-tstring = subwrd(args, 1)
-trun = subwrd(args, 2)
-tfilename = subwrd(args, 3)
-
+'settime.gs'
+rcl = sublin(result, 1)
+tt = subwrd(rcl, 1)
+tfilename = subwrd(rcl, 2)
+tstring = subwrd(rcl, 3)
+trun = subwrd(rcl, 4)
 'setrgb.gs'
 
 outf = 'out/'name'_'tfilename
@@ -25,8 +25,8 @@ outf = 'out/'name'_'tfilename
 'c'
 'set grads off'
 
-'set lon 95.6726 174.328'
-'set lat 12.8555 54.0347'
+*'set lon 85 155'
+*'set lat 0 45'
 'set z 1'
 'set xlint 10'
 'set ylint 10'
@@ -34,33 +34,24 @@ outf = 'out/'name'_'tfilename
 'set gxout shaded'
 'set clevs -1e9 2 4 8 12 18 25 35 50 70'
 'set ccols 17 0 181 182 183 184 185 186 187 188 189'
-if (tstring = trun)
-  'd const(TMPsfc-1e8, -1e10, -u)'
+if (tt = 1)
+  'd const(rain-1e8, -1e10, -u)'
 else
-  'd const(APCPsfc, -1e10, -u)'
+  'd const((rain+snow)*21600, -1e10, -u)'
 endif
 'cbarn.gs 0.8 0 5.5 0.7 0.8 1'
-
 
 'set gxout contour'
 'set cint 4'
 'set ccolor 21'
 'set cthick 4'
 'set clab off'
-*'d PRMSLmsl*0.01'
-'d MSLETmsl*0.01'
+'d slp*0.01'
 'set cint 8'
 'set ccolor 21'
 'set cthick 4'
 'set clab on'
-*'d PRMSLmsl*0.01'
-'d MSLETmsl*0.01'
-
-
-'set gxout shaded'
-'set clevs 0'
-'set ccols 17 17'
-'d maskout(mask.2(t=1), 0.5-mask.2(t=1)) + lon.2'
+'d slp*0.01'
 
 
 'set string 1 c 5'
@@ -80,4 +71,3 @@ endif
 '!rm -f 'outf'_tmp2.png'
 *'!rm -f 'outf'_tmp.gif'
 
-return

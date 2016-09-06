@@ -75,6 +75,11 @@ while ((t <= 120)); do
       bash $wkdir/run/plot/plot.sh "$TIME_fcst" "$GET_TIME" $((t/6+1)) "$wkdir/${YYYYMMDDHH}/gfs" \
        > ${wkdir}/convert_plot.log 2>&1 &
 
+      now=`date -u +'%Y-%m-%d %H:%M:%S'`
+      echo "$now [CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - GrADS for SCALE" >> ${wkdir}/get_ncep_gfs.log
+      bash $wkdir/run/grads_scale/convert.sh "$TIME_fcst" "$TIME_fcst" "$wkdir/${YYYYMMDDHH}/gfs" "$wkdir/../ncepgfs_grads/${YYYYMMDDHH}" \
+       > ${wkdir}/convert_grads.log 2>&1
+
 #      if [ ! -s "$wkdir/../ncepgfs_scale/${YYYYMMDDHH}/grads/${YYYYMMDDHHMMSS_fcst}.grd" ]; then
 #        now=`date -u +'%Y-%m-%d %H:%M:%S'`
 #        echo "$now [CONV] $YYYYMMDDHH -> gfs.$YYYYMMDDHHMMSS_fcst - SCALE_init" >> ${wkdir}/get_ncep_gfs.log
