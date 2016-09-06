@@ -1,0 +1,64 @@
+#!/bin/bash
+
+scale_ver="v160707_user"
+expname="test_5.0.0_13"
+domain=1
+
+logfile="$wkdir/${myname1}.log"
+outfile="$wkdir/${myname1}.out"
+lockfile="$wkdir/${myname1}.lock"
+timefile="$wkdir/${myname1}.time"
+timestopfile="$wkdir/${myname1}.time.stop"
+tmpdir="$wkdir/tmp/${myname1}"
+
+#wrfdir="$(cd "$wkdir/../ncepgfs_wrf" && pwd)"
+gradsdir="$(cd "$wkdir/../ncepgfs_grads" && pwd)"
+obsdir="$(cd "$wkdir/../ncepobs_gdas_letkf" && pwd)"
+outdir="$(cd "$wkdir/../exp/${expname}_d${domain}" && pwd)"
+plotdir="$(cd "$wkdir/../plot_${expname}" && pwd)"
+
+r_url="k01977@k.aics.riken.jp"
+r_wkdir="/volume63/data/hp150019/gylien/realtime"
+#r_wrfdir_da="${r_wkdir}/${expname}/ncepgfs_wrf_da"
+r_gradsdir_da="${r_wkdir}/${expname}/ncepgfs_grads_da"
+#r_wrfdir="${r_wkdir}/${expname}/ncepgfs_wrf"
+r_gradsdir="${r_wkdir}/${expname}/ncepgfs_grads"
+r_obsdir="${r_wkdir}/${expname}/ncepobs"
+r_rundir="${r_wkdir}/scale_${scale_ver}/letkf_${expname}_d${domain}/scale/run"
+r_outdir="${r_wkdir}/${expname}/exp_d${domain}"
+
+LCYCLE=21600
+TIME_DT[1]='30.0D0'
+TIME_DT[2]='20.0D0'
+TIME_DT[3]='10.0D0'
+TIME_DT_DYN[1]='3.0D0'
+TIME_DT_DYN[2]='2.0D0'
+TIME_DT_DYN[3]='1.0D0'
+NNODES[1]=816
+NNODES[2]=816
+NNODES[3]=816
+WTIME_L[1]='00:35:00'
+WTIME_L[2]='00:55:00'
+WTIME_L[3]='01:50:00'
+
+NNODES_m[1]=816
+NNODES_m[2]=816
+NNODES_m[3]=816
+WTIME_L_m[1]='00:30:00'
+WTIME_L_m[2]='00:30:00'
+WTIME_L_m[3]='00:30:00'
+
+F_r_rundir="${r_wkdir}/scale_${scale_ver}/letkf_${expname}_d${domain}_fcst/scale/run"
+
+FCSTLEN=432000
+F_NNODES[1]=48
+F_NNODES[2]=48
+F_NNODES[3]=48
+F_WTIME_L[1]='02:20:00'
+F_WTIME_L[2]='03:30:00'
+F_WTIME_L[3]='07:00:00'
+
+MAX_CYCLE=2
+F_MAX_CYCLE=9
+MAX_TRY=2
+F_MAX_TRY=2
